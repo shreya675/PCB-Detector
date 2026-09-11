@@ -1,0 +1,19 @@
+default_severity: minor
+fail_on_critical: true
+fail_major_count: 2
+warning_on_major: true
+warning_minor_count: 1
+defect_severity:
+  open_circuit: critical
+  short_circuit: critical
+  spur: minor
+  spurious_copper: minor
+  mouse_bite: major
+  missing_hole: major
+  pin_hole: major
+  missing_component: critical
+  misaligned_component: major
+  unexpected_component: major
+  broken_trace_candidate: major
+  bridge_candidate: major
+  spurious_copper_candidate: minor

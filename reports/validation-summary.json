@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-09-11T23:29:00.139631+00:00",
+  "pytest": {
+    "tests": 109,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 109
+  },
+  "checks": [
+    {
+      "command": [
+        "C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\.venv\\Scripts\\python.exe",
+        "scripts/validate_structure.py"
+      ],
+      "returncode": 0,
+      "output_tail": [
+        "Phase 1 structure valid (57 required paths checked)."
+      ]
+    },
+    {
+      "command": [
+        "C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\.venv\\Scripts\\python.exe",
+        "-m",
+        "compileall",
+        "-q",
+        "backend",
+        "src",
+        "tests",
+        "scripts",
+        "migrations"
+      ],
+      "returncode": 0,
+      "output_tail": []
+    },
+    {
+      "command": [
+        "C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\.venv\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "backend",
+        "src",
+        "tests",
+        "scripts"
+      ],
+      "returncode": 0,
+      "output_tail": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "command": [
+        "C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "--junitxml=C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\reports\\generated\\pytest.xml"
+      ],
+      "returncode": 0,
+      "output_tail": [
+        "============================== warnings summary ===============================",
+        ".venv\\Lib\\site-packages\\fastapi\\testclient.py:1",
+        "  C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\.venv\\Lib\\site-packages\\fastapi\\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.",
+        "    from starlette.testclient import TestClient as TestClient  # noqa",
+        "",
+        ".venv\\Lib\\site-packages\\starlette\\testclient.py:53",
+        "  C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\.venv\\Lib\\site-packages\\starlette\\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.",
+        "    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]",
+        "",
+        "-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html",
+        "- generated xml file: C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\reports\\generated\\pytest.xml -",
+        "109 passed, 2 warnings in 16.58s"
+      ]
+    }
+  ],
+  "scope": "Software tests only; frontend build, Docker runtime and real model evaluation are separate checks."
+}

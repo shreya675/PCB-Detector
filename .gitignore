@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+*.egg-info/
+*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
+
+# Node
+node_modules/
+frontend/dist/
+
+# Environment and local databases
+.env
+.env.*
+!.env.example
+*.db
+*.sqlite3
+
+# Generated and large artifacts
+data/raw/*
+data/interim/*
+data/processed/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+models/weights/*
+!models/weights/.gitkeep
+reports/generated/*
+reports/inspections/
+reports/training/
+reports/predictions/
+!reports/generated/.gitkeep
+
+*.log
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,14 @@
+model: yolo11n.pt
+data: data/processed/deeppcb/dataset.yaml
+epochs: 100
+image_size: 640
+batch: 16
+workers: 4
+device: auto
+seed: 42
+deterministic: true
+patience: 25
+confidence: 0.25
+iou: 0.50
+project: reports/training
+name: deeppcb-yolo11n-baseline
