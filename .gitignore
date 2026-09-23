@@ -42,3 +42,7 @@ reports/predictions/
 .DS_Store
 .idea/
 .vscode/
+
+# Ultralytics output
+runs/
+reports/error-analysis*/

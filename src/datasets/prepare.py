@@ -39,7 +39,40 @@ def _copy_record(source_image: Path, source_label: Path, output: Path, split: st
     )
 
 
-def prepare_deeppcb(source: Path, output: Path) -> list[DatasetRecord]:
+def _record_id_from_list_entry(entry: str) -> str:
+    """'group20085/20085/20085000.jpg group20085/20085_not/20085000.txt' -> '20085000'."""
+    image_part = entry.split()[0]
+    stem = Path(image_part).stem
+    return stem.removesuffix("_test").removesuffix("_temp")
+
+
+def load_official_split(list_dir: Path) -> dict[str, str]:
+    """Read DeepPCB's official trainval.txt / test.txt and map record_id -> 'trainval' | 'test'."""
+    mapping: dict[str, str] = {}
+    for name, split in (("trainval.txt", "trainval"), ("test.txt", "test")):
+        path = list_dir / name
+        if not path.is_file():
+            raise ValueError(f"Official split list not found: {path}")
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                record_id = _record_id_from_list_entry(line)
+                if mapping.get(record_id, split) != split:
+                    raise ValueError(f"Record {record_id} appears in both trainval and test lists")
+                mapping[record_id] = split
+    return mapping
+
+
+def prepare_deeppcb(source: Path, output: Path, val_fraction: float = 0.1,
+                    official_split_dir: Path | None = None) -> list[DatasetRecord]:
+    """Convert DeepPCB.
+
+    Default: deterministic grouped split (whole board groups stay together; ``val_fraction``
+    widens the validation bucket, the test bucket is unchanged).
+    With ``official_split_dir``: use the upstream trainval.txt / test.txt lists (the paper's
+    1000/500 benchmark protocol, boards shared between splits) and carve ``val_fraction`` of
+    the trainval images out for validation, deterministically by record id.
+    """
+    official = load_official_split(official_split_dir) if official_split_dir else None
     candidates = sorted(path for path in source.rglob("*_test.*") if path.suffix.lower() in IMAGE_SUFFIXES)
     if not candidates:
         raise ValueError(f"No DeepPCB *_test images found below {source}")
@@ -59,11 +92,20 @@ def prepare_deeppcb(source: Path, output: Path) -> list[DatasetRecord]:
         if not annotation.is_file() or not reference.is_file():
             raise ValueError(f"Incomplete DeepPCB pair for {image}: label={annotation.exists()}, reference={reference.exists()}")
         group = next((p.name for p in image.parents if p.name.startswith("group")), board_group(record_id))
-        split = stable_split(group)
+        if official is not None:
+            if record_id not in official:
+                raise ValueError(f"{record_id} is not listed in the official trainval/test lists")
+            if official[record_id] == "test":
+                split = "test"
+            else:
+                split = "val" if stable_split(record_id, train=1 - val_fraction, val=0.0) != "train" else "train"
+        else:
+            split = stable_split(group, train=0.9 - val_fraction, val=val_fraction)
         groups.append((group, split))
         records.append(_copy_record(image, annotation, output, split, record_id,
                                     parse_deeppcb_annotation(annotation), reference, "DeepPCB"))
-    assert_no_group_leakage(groups)
+    if official is None:
+        assert_no_group_leakage(groups)
     write_manifest(output, records)
     write_dataset_yaml(output)
     return records
