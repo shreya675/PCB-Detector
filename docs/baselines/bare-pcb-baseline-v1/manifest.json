@@ -1,0 +1,272 @@
+{
+  "created_at": "2026-09-23T13:09:45.417978+00:00",
+  "scope": "Local artifact snapshot; no new training or evaluation performed.",
+  "limitations": [
+    "Dataset metadata is copied; image files are not backed up.",
+    "Checkpoint/report hash matches do not establish test independence.",
+    "Repeated test-set experiments must not be called untouched evaluation."
+  ],
+  "checkpoints": [
+    {
+      "source": "models/weights/best.pt",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/best.pt",
+      "bytes": 5480666,
+      "sha256": "3db251a4ad49886d7248848e8ba836158a6de76e6afc1ee5eb97712760c3a86e",
+      "evaluations": [
+        {
+          "source": "runs/detect/reports/training/deeppcb-yolo11n-baseline-evaluation/metrics.json",
+          "archived_report": "docs/baselines/bare-pcb-baseline-v1/evaluations/runs/detect/reports/training/deeppcb-yolo11n-baseline-evaluation/metrics.json",
+          "report_sha256": "92ea9a4a85589df7372a90ffe93c624af872473f4cdc48a625a704bc204b52ae",
+          "dataset": {
+            "evaluated_split": "test",
+            "split_counts": {
+              "test": 100,
+              "train": 1288,
+              "val": 112
+            },
+            "yaml": "C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\data\\processed\\deeppcb\\dataset.yaml"
+          },
+          "config": {
+            "batch": 16,
+            "confidence": 0.25,
+            "data": "data/processed/deeppcb/dataset.yaml",
+            "deterministic": true,
+            "device": "auto",
+            "epochs": 100,
+            "evaluation_split": "test",
+            "image_size": 640,
+            "iou": 0.5,
+            "model": "yolo11n.pt",
+            "name": "deeppcb-yolo11n-baseline",
+            "patience": 25,
+            "project": "reports/training",
+            "seed": 42,
+            "workers": 4
+          },
+          "metrics": {
+            "fitness": 0.609941029622362,
+            "metrics/mAP50(B)": 0.8756198334182552,
+            "metrics/mAP50-95(B)": 0.609941029622362,
+            "metrics/precision(B)": 0.9100204742458226,
+            "metrics/recall(B)": 0.8716518595342709
+          }
+        },
+        {
+          "source": "runs/detect/reports/training/deeppcb-yolo11n-standard-evaluation/metrics.json",
+          "archived_report": "docs/baselines/bare-pcb-baseline-v1/evaluations/runs/detect/reports/training/deeppcb-yolo11n-standard-evaluation/metrics.json",
+          "report_sha256": "58697b08b4ea7469fb1fe1a86d34127a3dca11b516d4c55f1879bb82564b8f0e",
+          "dataset": {
+            "evaluated_split": "test",
+            "split_counts": {
+              "test": 100,
+              "train": 1288,
+              "val": 112
+            },
+            "yaml": "C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\data\\processed\\deeppcb\\dataset.yaml"
+          },
+          "config": {
+            "batch": 16,
+            "confidence": 0.001,
+            "data": "data/processed/deeppcb/dataset.yaml",
+            "deterministic": true,
+            "device": "auto",
+            "epochs": 100,
+            "evaluation_split": "test",
+            "image_size": 640,
+            "iou": 0.5,
+            "model": "yolo11n.pt",
+            "name": "deeppcb-yolo11n-standard",
+            "patience": 25,
+            "project": "reports/training",
+            "seed": 42,
+            "workers": 4
+          },
+          "metrics": {
+            "fitness": 0.6334506291531561,
+            "metrics/mAP50(B)": 0.914282267743376,
+            "metrics/mAP50-95(B)": 0.6334506291531561,
+            "metrics/precision(B)": 0.9100204742458226,
+            "metrics/recall(B)": 0.8716518595342709
+          }
+        }
+      ]
+    },
+    {
+      "source": "models/weights/yolo11m_official_v4.pt",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/yolo11m_official_v4.pt",
+      "bytes": 40618476,
+      "sha256": "4a5f959fb661298c1ea5f6b727daba29b338a6e301ae58bec8a2c9df9753ca82",
+      "evaluations": [
+        {
+          "source": "runs/detect/reports/training/deeppcb-official-evaluation-2/metrics.json",
+          "archived_report": "docs/baselines/bare-pcb-baseline-v1/evaluations/runs/detect/reports/training/deeppcb-official-evaluation-2/metrics.json",
+          "report_sha256": "add73b4a9dd4c241b124aa2a97e261293a1a10a0b353c2451fd2a429f8bcbe93",
+          "dataset": {
+            "evaluated_split": "test",
+            "split_counts": {
+              "test": 500,
+              "train": 900,
+              "val": 100
+            },
+            "yaml": "C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\data\\processed\\deeppcb-official\\dataset.yaml"
+          },
+          "config": {
+            "batch": 16,
+            "confidence": 0.001,
+            "data": "data/processed/deeppcb-official/dataset.yaml",
+            "deterministic": true,
+            "device": "auto",
+            "epochs": 100,
+            "evaluation_split": "test",
+            "image_size": 1024,
+            "iou": 0.5,
+            "model": "yolo11n.pt",
+            "name": "deeppcb-official",
+            "patience": 25,
+            "project": "reports/training",
+            "seed": 42,
+            "workers": 4
+          },
+          "metrics": {
+            "fitness": 0.7406308913201541,
+            "metrics/mAP50(B)": 0.9780797992676122,
+            "metrics/mAP50-95(B)": 0.7406308913201541,
+            "metrics/precision(B)": 0.9536040464597167,
+            "metrics/recall(B)": 0.9594862192212367
+          }
+        }
+      ]
+    },
+    {
+      "source": "models/weights/yolo11s_1024_v3.pt",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/yolo11s_1024_v3.pt",
+      "bytes": 19269722,
+      "sha256": "66720f0739e706696d89fbcf32b880a931338a0e9b8e23b06be43a8b5c199457",
+      "evaluations": [
+        {
+          "source": "runs/detect/reports/training/deeppcb-yolo11s-1024-c0.25-evaluation/metrics.json",
+          "archived_report": "docs/baselines/bare-pcb-baseline-v1/evaluations/runs/detect/reports/training/deeppcb-yolo11s-1024-c0.25-evaluation/metrics.json",
+          "report_sha256": "7674d315007942b1242700855fab3e2fe78f568acbba72c00fb33ed93dd3a0df",
+          "dataset": {
+            "evaluated_split": "test",
+            "split_counts": {
+              "test": 100,
+              "train": 1288,
+              "val": 112
+            },
+            "yaml": "C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\data\\processed\\deeppcb\\dataset.yaml"
+          },
+          "config": {
+            "batch": 16,
+            "confidence": 0.25,
+            "data": "data/processed/deeppcb/dataset.yaml",
+            "deterministic": true,
+            "device": "auto",
+            "epochs": 100,
+            "evaluation_split": "test",
+            "image_size": 1024,
+            "iou": 0.5,
+            "model": "yolo11n.pt",
+            "name": "deeppcb-yolo11s-1024-c0.25",
+            "patience": 25,
+            "project": "reports/training",
+            "seed": 42,
+            "workers": 4
+          },
+          "metrics": {
+            "fitness": 0.6475916083210581,
+            "metrics/mAP50(B)": 0.9142117027501669,
+            "metrics/mAP50-95(B)": 0.6475916083210581,
+            "metrics/precision(B)": 0.9095855757225669,
+            "metrics/recall(B)": 0.9213834106191232
+          }
+        },
+        {
+          "source": "runs/detect/reports/training/deeppcb-yolo11s-1024-val-evaluation/metrics.json",
+          "archived_report": "docs/baselines/bare-pcb-baseline-v1/evaluations/runs/detect/reports/training/deeppcb-yolo11s-1024-val-evaluation/metrics.json",
+          "report_sha256": "090c646283e17e2fd5e9ad4393b14203114dd8f1526b169c56d2a58d0d1880bc",
+          "dataset": {
+            "evaluated_split": "test",
+            "split_counts": {
+              "test": 100,
+              "train": 1209,
+              "val": 191
+            },
+            "yaml": "C:\\PCB detector\\pcb-aoi-final\\pcb-aoi\\data\\processed\\deeppcb-v2\\dataset.yaml"
+          },
+          "config": {
+            "batch": 16,
+            "confidence": 0.001,
+            "data": "data/processed/deeppcb-v2/dataset.yaml",
+            "deterministic": true,
+            "device": "auto",
+            "epochs": 100,
+            "evaluation_split": "test",
+            "image_size": 1024,
+            "iou": 0.5,
+            "model": "yolo11n.pt",
+            "name": "deeppcb-yolo11s-1024-val",
+            "patience": 25,
+            "project": "reports/training",
+            "seed": 42,
+            "workers": 4
+          },
+          "metrics": {
+            "fitness": 0.6650517820260522,
+            "metrics/mAP50(B)": 0.9415979741645591,
+            "metrics/mAP50-95(B)": 0.6650517820260522,
+            "metrics/precision(B)": 0.9095855757225669,
+            "metrics/recall(B)": 0.9213834106191232
+          }
+        }
+      ]
+    }
+  ],
+  "dataset_metadata": [
+    {
+      "source": "data/processed/deeppcb/dataset.yaml",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/dataset-metadata/deeppcb/dataset.yaml",
+      "sha256": "4f40d00d33397d2399471b46435d4a936e5780cef614064a58c3ba09e3f4fb99"
+    },
+    {
+      "source": "data/processed/deeppcb/manifest.jsonl",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/dataset-metadata/deeppcb/manifest.jsonl",
+      "sha256": "f96ed1af98f7fdde34d07eb5236805ab3b73ac1635655f686d8adc2c812e3498"
+    },
+    {
+      "source": "data/processed/deeppcb/summary.json",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/dataset-metadata/deeppcb/summary.json",
+      "sha256": "58879ff8872d8350fa0e5fe7e0d447fc2560d26ed6f9219c1fb3f43029486b84"
+    },
+    {
+      "source": "data/processed/deeppcb-official/dataset.yaml",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/dataset-metadata/deeppcb-official/dataset.yaml",
+      "sha256": "88393b02fbadeb50237ce2071f160becbc13628b3e67aec26e42bdacc74fb1f0"
+    },
+    {
+      "source": "data/processed/deeppcb-official/manifest.jsonl",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/dataset-metadata/deeppcb-official/manifest.jsonl",
+      "sha256": "f0fcda91d29ec508fa7b116a150834cc79928abefeb18d4602af3974b88e6c0c"
+    },
+    {
+      "source": "data/processed/deeppcb-official/summary.json",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/dataset-metadata/deeppcb-official/summary.json",
+      "sha256": "63e8783f2709364f4e8c03bef0f14c284b82aa7523f2b3a2f3c812eec9ed49d4"
+    },
+    {
+      "source": "data/processed/deeppcb-v2/dataset.yaml",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/dataset-metadata/deeppcb-v2/dataset.yaml",
+      "sha256": "55f5632bf33597b1ae4ddf719d449f4a20785b38699bb9fd3f48ebececc22da9"
+    },
+    {
+      "source": "data/processed/deeppcb-v2/manifest.jsonl",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/dataset-metadata/deeppcb-v2/manifest.jsonl",
+      "sha256": "f9ec5171e213b7fab90afd9c9b75b05e97d761eacff15d8d3fd49261853b4fa8"
+    },
+    {
+      "source": "data/processed/deeppcb-v2/summary.json",
+      "backup": "models/weights/baselines/bare-pcb-baseline-v1/dataset-metadata/deeppcb-v2/summary.json",
+      "sha256": "8282bb151f69403e84aa36c867449ce2524b7ba5e8ade71d3044cb42c06b4211"
+    }
+  ]
+}

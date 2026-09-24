@@ -50,3 +50,53 @@ export interface InspectionList {
   limit: number;
   offset: number;
 }
+
+export interface MetricPoint {
+  precision: number;
+  recall: number;
+  tp?: number;
+  fp?: number;
+  fn?: number;
+}
+
+export interface ModelCard {
+  name: string;
+  architecture: string;
+  trained_on?: string;
+  dataset: {
+    name: string;
+    split: string;
+    train: number;
+    val: number;
+    test: number;
+    image_size: number;
+    classes: string[];
+    untrained_classes?: string[];
+  };
+  training?: Record<string, string | number>;
+  evaluation: {
+    split: string;
+    ultralytics_val: { conf: number; iou: number; precision: number; recall: number; mAP50: number; mAP50_95: number };
+    operating_point: {
+      conf: number;
+      match_iou: number;
+      note?: string;
+      model_only: MetricPoint;
+      with_postprocess: MetricPoint;
+      defect_level_with_postprocess: MetricPoint;
+    };
+    per_class_with_postprocess: Record<string, MetricPoint>;
+    reference?: { paper: string; precision: number; recall: number };
+  };
+  known_limitations?: string[];
+}
+
+export interface ModelInfo {
+  model_status: "available" | "missing";
+  weights_file: string;
+  model_version: string;
+  confidence_threshold: number;
+  postprocess: { enabled: boolean; nms_iou: number; box_scale: number };
+  evaluation: ModelCard | null;
+  evaluation_mismatch: boolean;
+}

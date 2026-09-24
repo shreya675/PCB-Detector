@@ -1,0 +1,144 @@
+{
+  "name": "yolo11m_official_v4",
+  "architecture": "Ultralytics YOLO11m (object detection)",
+  "weights": {
+    "file": "models/weights/yolo11m_official_v4.pt",
+    "sha256": "4a5f959fb661298c1ea5f6b727daba29b338a6e301ae58bec8a2c9df9753ca82"
+  },
+  "trained_on": "2026-09-21",
+  "dataset": {
+    "name": "DeepPCB",
+    "source": "https://github.com/tangsanli5201/DeepPCB",
+    "split": "official trainval.txt / test.txt lists",
+    "train": 900,
+    "val": 100,
+    "test": 500,
+    "image_size": 1024,
+    "excluded_images": [
+      "44000020 (annotation overlay baked into the image)"
+    ],
+    "classes": [
+      "open_circuit",
+      "short_circuit",
+      "mouse_bite",
+      "spur",
+      "spurious_copper",
+      "pin_hole"
+    ],
+    "untrained_classes": [
+      "missing_hole"
+    ]
+  },
+  "training": {
+    "base_weights": "yolo11m.pt",
+    "optimizer": "SGD lr0=0.01 cos_lr",
+    "epochs_run": 143,
+    "best_epoch": 63,
+    "augmentation": "fliplr/flipud 0.5, scale 0.3, hsv 0, degrees 0, close_mosaic 15",
+    "hardware": "Google Colab T4"
+  },
+  "evaluation": {
+    "split": "test (500 images, never used for training or model selection)",
+    "ultralytics_val": {
+      "conf": 0.001,
+      "iou": 0.5,
+      "precision": 0.9536,
+      "recall": 0.9595,
+      "mAP50": 0.9781,
+      "mAP50_95": 0.7406,
+      "source": "runs/detect/reports/training/deeppcb-official-evaluation-2/metrics.json"
+    },
+    "operating_point": {
+      "conf": 0.25,
+      "match_iou": 0.33,
+      "note": "DeepPCB paper protocol (IoU 0.33)",
+      "model_only": {
+        "precision": 0.9324,
+        "recall": 0.9425,
+        "tp": 2951,
+        "fp": 214,
+        "fn": 180
+      },
+      "with_postprocess": {
+        "precision": 0.958,
+        "recall": 0.9403,
+        "tp": 2944,
+        "fp": 129,
+        "fn": 187
+      },
+      "defect_level_with_postprocess": {
+        "precision": 0.9632,
+        "recall": 0.9454,
+        "tp": 2960,
+        "fp": 113,
+        "fn": 171
+      },
+      "source": "reports/error-analysis-official-pp/summary.json (scripts/analyze_errors.py)"
+    },
+    "per_class_with_postprocess": {
+      "open_circuit": {
+        "precision": 0.99,
+        "recall": 0.951,
+        "tp": 625,
+        "fp": 6,
+        "fn": 32
+      },
+      "short_circuit": {
+        "precision": 0.963,
+        "recall": 0.92,
+        "tp": 438,
+        "fp": 17,
+        "fn": 38
+      },
+      "mouse_bite": {
+        "precision": 0.987,
+        "recall": 0.926,
+        "tp": 541,
+        "fp": 7,
+        "fn": 43
+      },
+      "spur": {
+        "precision": 0.978,
+        "recall": 0.925,
+        "tp": 446,
+        "fp": 10,
+        "fn": 36
+      },
+      "spurious_copper": {
+        "precision": 0.971,
+        "recall": 0.952,
+        "tp": 441,
+        "fp": 13,
+        "fn": 22
+      },
+      "pin_hole": {
+        "precision": 0.856,
+        "recall": 0.966,
+        "tp": 453,
+        "fp": 76,
+        "fn": 16
+      }
+    },
+    "false_positive_reasons_with_postprocess": {
+      "background": 106,
+      "misclassified": 14,
+      "poor_localisation": 7,
+      "duplicate": 2
+    },
+    "reference": {
+      "paper": "Tang et al. 2019, Online PCB Defect Detector on a New PCB Defect Dataset",
+      "precision": 0.982,
+      "recall": 0.981
+    }
+  },
+  "postprocess": {
+    "class_agnostic_nms_iou": 0.2,
+    "box_scale": 1.15,
+    "template_relabel": false
+  },
+  "known_limitations": [
+    "pin_hole precision 0.856: drill dots on clean boards are sometimes flagged",
+    "missing_hole has no training data and is never predicted",
+    "trained on binarised 640x640 DeepPCB images; real colour photos are out of distribution"
+  ]
+}

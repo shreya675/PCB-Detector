@@ -9,6 +9,7 @@ from src.cv.alignment import align_to_reference
 from src.cv.preprocessing import validate_image
 from src.inspection.comparison import compare_components
 from src.inspection.detectors import ContourComponentDetector
+from src.inspection.template_rules import postprocess
 from src.inspection.trace_analysis import analyze_trace_differences
 
 from .contracts import DefectDetector, DefectFinding, InspectionOutcome
@@ -22,10 +23,34 @@ class InspectionProcessingError(RuntimeError):
 
 
 class InspectionEngine:
-    def __init__(self, detector: DefectDetector, policy: SeverityPolicy, reference_analysis: bool = True):
+    def __init__(self, detector: DefectDetector, policy: SeverityPolicy, reference_analysis: bool = True,
+                 postprocess_enabled: bool = True, nms_iou: float = 0.2, box_scale: float = 1.15):
         self.detector = detector
         self.policy = policy
         self.reference_analysis = reference_analysis
+        self.postprocess_enabled = postprocess_enabled
+        self.nms_iou = nms_iou
+        self.box_scale = box_scale
+
+    def _postprocess(self, findings: list[DefectFinding], shape: tuple[int, ...]) -> list[DefectFinding]:
+        """Class-agnostic NMS + box scaling, the same chain validated on the DeepPCB test split."""
+        if not self.postprocess_enabled or not findings:
+            return findings
+        height, width = shape[:2]
+        refined = postprocess([(item.defect_type, item.confidence or 0.0, item.bbox) for item in findings],
+                              nms_iou=self.nms_iou, box_scale=self.box_scale)
+        result = []
+        for class_name, score, box in refined:
+            original = next((item for item in findings
+                             if item.defect_type == class_name and (item.confidence or 0.0) == score), None)
+            if original is None:
+                continue
+            x1, y1, x2, y2 = box
+            clamped = (max(0.0, x1), max(0.0, y1), min(float(width), x2), min(float(height), y2))
+            metadata = dict(original.metadata or {})
+            metadata["postprocessed"] = True
+            result.append((findings.index(original), replace(original, bbox=clamped, metadata=metadata)))
+        return [item for _, item in sorted(result, key=lambda pair: pair[0])]  # keep detector order
 
     def _reference_findings(self, reference: np.ndarray, aligned: np.ndarray, valid_mask: np.ndarray) -> list[DefectFinding]:
         findings: list[DefectFinding] = []
@@ -84,7 +109,7 @@ class InspectionEngine:
             aligned = alignment.aligned_image
             reference_findings = self._reference_findings(reference_image, aligned, alignment.valid_mask)
         # All boxes and annotations share the same image coordinate frame.
-        findings = list(self.detector.detect(aligned)) + reference_findings
+        findings = self._postprocess(list(self.detector.detect(aligned)), aligned.shape) + reference_findings
         findings = [replace(item, severity=self.policy.severity_for(item.defect_type)) for item in findings]
         status, counts = self.policy.decide([item.severity for item in findings if item.severity])
         annotated = aligned.copy()

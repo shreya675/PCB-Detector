@@ -12,6 +12,11 @@ data/raw
 data/interim
 data/processed
 models/weights
+runs
+reports/error-analysis*
+notebooks
+docs
+tests
 reports/inspections
 reports/generated
 *.db

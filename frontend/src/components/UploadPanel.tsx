@@ -68,20 +68,21 @@ export function UploadPanel({ busy, error, modelAvailable, onSubmit }: UploadPan
     >
       <div className="panel-heading">
         <div>
-          <h2>Upload PCB images</h2>
-          <p>Add a test image and, optionally, a reference board for alignment and comparison.</p>
+          <div className="eyebrow">BOARD IMAGES</div>
+          <h2>What are we inspecting?</h2>
+          <p>Select the board to inspect. A reference image is optional.</p>
         </div>
       </div>
 
       {!modelAvailable && (
         <div className="info-banner" role="status" style={{ marginBottom: 16 }}>
-          No detection model is loaded on the server. Inspections will be rejected until weights are available.
+          The detection model is unavailable. Load a model on the server before running an inspection.
         </div>
       )}
 
       <div className="upload-grid">
-        <FileField label="Test PCB image" hint="Required · PNG, JPEG, BMP or TIFF" file={test} onFile={setTest} required />
-        <FileField label="Reference PCB image" hint="Optional · enables component and trace comparison" file={reference} onFile={setReference} />
+        <FileField label="Choose board image" hint="Required · PNG, JPEG, BMP or TIFF" file={test} onFile={setTest} required />
+        <FileField label="Add a reference board" hint="Optional · for alignment and comparison" file={reference} onFile={setReference} />
       </div>
 
       {error && <div className="error-banner" role="alert" style={{ marginTop: 16 }}>{error}</div>}

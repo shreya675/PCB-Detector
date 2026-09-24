@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import numpy as np
 from PIL import Image
-from scipy import ndimage
 
 CLASS_NAMES = ["open_circuit", "short_circuit", "spur", "spurious_copper", "mouse_bite", "missing_hole", "pin_hole"]
 
@@ -26,6 +25,8 @@ def load_copper_mask(path) -> np.ndarray:
 
 
 def _components(mask: np.ndarray, min_size: int) -> int:
+    from scipy import ndimage
+
     labels, count = ndimage.label(mask)
     if count == 0:
         return 0
@@ -43,6 +44,8 @@ def _crop(mask: np.ndarray, box, margin: int) -> np.ndarray:
 def classify_region(test_mask: np.ndarray, template_mask: np.ndarray, box, margin: int = 4,
                     connectivity_margin: int = 6, min_change: int = 4,
                     min_component: int = 60) -> tuple[str | None, dict]:
+    from scipy import ndimage  # optional dependency, only needed for template rules
+
     X = _crop(test_mask, box, margin)
     T = _crop(template_mask, box, margin)
     if X.size == 0:

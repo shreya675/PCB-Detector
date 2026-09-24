@@ -23,7 +23,9 @@ router = APIRouter(prefix="/api", tags=["inspections"])
 storage = InspectionStorage(Path(settings.storage_root), settings.max_upload_mb)
 policy = SeverityPolicy.from_yaml(Path(settings.severity_policy_path))
 detector = UltralyticsDefectDetector(Path(settings.model_path), settings.confidence_threshold)
-inspection_engine = InspectionEngine(detector, policy, settings.enable_reference_analysis)
+inspection_engine = InspectionEngine(detector, policy, settings.enable_reference_analysis,
+                                     settings.enable_postprocess, settings.postprocess_nms_iou,
+                                     settings.postprocess_box_scale)
 
 
 @router.post("/inspect", response_model=InspectionResponse, status_code=status.HTTP_201_CREATED)

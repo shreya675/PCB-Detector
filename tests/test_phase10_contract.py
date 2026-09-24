@@ -21,9 +21,13 @@ class Phase10ContractTests(unittest.TestCase):
         config = yaml.safe_load((ROOT / "ml/configs/deep_pcb.yaml").read_text())
         self.assertEqual(tuple(config["names"].values()), CLASS_NAMES)
 
-    def test_no_trained_weights_are_falsely_bundled(self):
-        weights = [path for path in (ROOT / "models/weights").iterdir() if path.name != ".gitkeep"]
-        self.assertEqual(weights, [])
+    def test_trained_weights_are_not_committed(self):
+        # Weights live on disk locally but must stay out of git; the model card documents them instead.
+        gitignore = (ROOT / ".gitignore").read_text()
+        self.assertIn("models/weights/*", gitignore)
+        self.assertIn("!models/weights/.gitkeep", gitignore)
+        card = json.loads((ROOT / "models/model_card.json").read_text())
+        self.assertEqual(len(card["weights"]["sha256"]), 64)
 
     def test_docker_runs_as_non_root_with_healthcheck(self):
         dockerfile = (ROOT / "Dockerfile").read_text()

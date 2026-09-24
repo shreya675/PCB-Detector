@@ -1,12 +1,10 @@
 import { useState, type ReactNode } from "react";
-import type { HealthResponse } from "../types";
 import { Icon } from "./Icon";
-import { StatusBadge } from "./StatusBadge";
 
 export type View = "dashboard" | "new" | "history" | "analytics" | "model";
 
 const NAV: { id: View; label: string; icon: Parameters<typeof Icon>[0]["name"] }[] = [
-  { id: "dashboard", label: "Dashboard", icon: "grid" },
+  { id: "dashboard", label: "Overview", icon: "grid" },
   { id: "new", label: "New inspection", icon: "scan" },
   { id: "history", label: "Inspection history", icon: "history" },
   { id: "analytics", label: "Defect analytics", icon: "analytics" },
@@ -15,14 +13,12 @@ const NAV: { id: View; label: string; icon: Parameters<typeof Icon>[0]["name"] }
 
 interface ShellProps {
   view: View;
-  health: HealthResponse | null;
   onView: (view: View) => void;
   children: ReactNode;
 }
 
-export function Shell({ view, health, onView, children }: ShellProps) {
+export function Shell({ view, onView, children }: ShellProps) {
   const [open, setOpen] = useState(false);
-  const apiOnline = health?.status === "ok";
 
   return (
     <div className="app-shell">
@@ -35,11 +31,13 @@ export function Shell({ view, health, onView, children }: ShellProps) {
           </div>
         </div>
 
-        <nav aria-label="Primary navigation">
+        <div className="nav-caption">WORKSPACE</div>
+        <nav aria-label="Primary navigation" id="workspace-navigation">
           {NAV.map((item) => (
             <button
               key={item.id}
               className={view === item.id ? "nav-item active" : "nav-item"}
+              aria-current={view === item.id ? "page" : undefined}
               onClick={() => { onView(item.id); setOpen(false); }}
             >
               <Icon name={item.icon} />
@@ -56,16 +54,12 @@ export function Shell({ view, health, onView, children }: ShellProps) {
 
       <div className="workspace">
         <header className="topbar">
-          <button className="icon-button mobile-menu" aria-label="Open menu" onClick={() => setOpen(!open)}>
+          <button className="icon-button mobile-menu" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="workspace-navigation" onClick={() => setOpen(!open)}>
             <Icon name="menu" />
           </button>
-          <div className="topbar-title">PCB optical inspection</div>
-          <div className="topbar-right">
-            <span className="muted" style={{ fontSize: 13 }}>API</span>
-            <StatusBadge value={health === null ? "offline" : apiOnline ? "online" : "degraded"} />
-          </div>
+          <div className="topbar-title">Optical inspection <span className="topbar-divider">/</span> <span className="muted">{NAV.find((item) => item.id === view)?.label}</span></div>
         </header>
-        <div className="page-content">{children}</div>
+        <main className="page-content">{children}</main>
       </div>
 
       {open && <button className="backdrop" aria-label="Close menu" onClick={() => setOpen(false)} />}

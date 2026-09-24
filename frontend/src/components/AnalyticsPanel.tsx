@@ -1,9 +1,9 @@
 import { summarizeInspections } from "../lib/analytics";
 import type { InspectionSummary } from "../types";
 
-type Tone = "green" | "orange" | "red" | "blue";
+export type Tone = "green" | "orange" | "red" | "blue";
 
-function BarList({ rows, label }: { rows: readonly (readonly [string, number, Tone])[]; label: string }) {
+export function BarList({ rows, label }: { rows: readonly (readonly [string, number, Tone])[]; label: string }) {
   const max = Math.max(1, ...rows.map((row) => row[1]));
   return (
     <div className="bar-list" role="img" aria-label={label}>

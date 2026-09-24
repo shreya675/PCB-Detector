@@ -1,8 +1,18 @@
+---
+title: PCB AOI Inspector
+emoji: "🔍"
+colorFrom: blue
+colorTo: gray
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
 # PCB AOI — AI-Powered Optical Inspection
 
 A portfolio-level **academic/research prototype** for detecting visible PCB defects, comparing a test image with an optional reference board, assigning explainable severity, and publishing annotated results and PDF reports through a FastAPI API and React dashboard.
 
-> **Safety notice:** This is not an industrially certified inspection system, electrical continuity test, or substitute for qualified human inspection. No trained project weights or measured model performance are bundled.
+> **Safety notice:** This is not an industrially certified inspection system, electrical continuity test, or substitute for qualified human inspection. Trained weights are distributed separately; measured performance is recorded in `models/model_card.json`.
 
 ## Pipeline
 
@@ -30,7 +40,7 @@ The output taxonomy preserves the requested categories plus DeepPCB pin holes:
 6. `missing_hole`
 7. `pin_hole` (DeepPCB-specific; distinct from a missing drilled hole)
 
-The repository contains training/evaluation code but **no trained weights**, so it currently makes no operational model prediction until a real `best.pt` is supplied. Reference comparison can produce six additional heuristic evidence types; these are not model classes or probabilities. See [docs/model-classes.md](docs/model-classes.md).
+Trained weights are not committed (see `models/weights/`); the API expects `models/weights/yolo11m_official_v4.pt` (YOLO11m, DeepPCB official split). Its held-out results are recorded in `models/model_card.json` and shown on the dashboard's Model performance page: precision 95.8% / recall 94.0% at conf 0.25, IoU 0.33 with post-processing (500 test images). Reference comparison can produce six additional heuristic evidence types; these are not model classes or probabilities. See [docs/model-classes.md](docs/model-classes.md).
 
 ## Features
 

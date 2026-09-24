@@ -1,31 +1,28 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "./lib/api";
 import { summarizeInspections } from "./lib/analytics";
-import type { HealthResponse, Inspection, InspectionSummary } from "./types";
-import { AnalyticsPanel } from "./components/AnalyticsPanel";
+import type { HealthResponse, Inspection, InspectionSummary, ModelInfo } from "./types";
+import { AnalyticsPanel, BarList } from "./components/AnalyticsPanel";
 import { HistoryTable } from "./components/HistoryTable";
 import { Icon } from "./components/Icon";
 import { InspectionResult } from "./components/InspectionResult";
 import { MetricCard } from "./components/MetricCard";
+import { ModelPanel } from "./components/ModelPanel";
 import { Shell, type View } from "./components/Shell";
-import { StatusBadge } from "./components/StatusBadge";
 import { UploadPanel } from "./components/UploadPanel";
 
 const PAGE_TITLES: Record<View, { title: string; subtitle: string }> = {
-  dashboard: { title: "Inspection overview", subtitle: "Monitor inspection outcomes, defects, and system readiness." },
-  new: { title: "New inspection", subtitle: "Upload a board image to run the detection pipeline." },
-  history: { title: "Inspection history", subtitle: "Every stored inspection record, newest first." },
-  analytics: { title: "Defect analytics", subtitle: "Outcome and severity breakdown of the loaded records." },
-  model: { title: "Model performance", subtitle: "Detection model readiness and declared output classes." },
+  dashboard: { title: "Inspection overview", subtitle: "Review your boards, check findings, and pick up where you left off." },
+  new: { title: "New inspection", subtitle: "Choose a board image to check for defects." },
+  history: { title: "Inspection history", subtitle: "Open a record to review the board image and its findings." },
+  analytics: { title: "Defect analytics", subtitle: "A closer look at outcomes and defect severity." },
+  model: { title: "Model performance", subtitle: "Loaded weights and their held-out evaluation results." },
 };
-
-const MODEL_CLASSES = [
-  "open_circuit", "short_circuit", "spur", "spurious_copper", "mouse_bite", "missing_hole", "pin_hole",
-];
 
 export default function App() {
   const [view, setView] = useState<View>("dashboard");
   const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
   const [items, setItems] = useState<InspectionSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [selected, setSelected] = useState<Inspection | null>(null);
@@ -37,13 +34,14 @@ export default function App() {
   const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const results = await Promise.allSettled([api.health(), api.inspections()]);
+    const results = await Promise.allSettled([api.health(), api.inspections(), api.model()]);
     setHealth(results[0].status === "fulfilled" ? results[0].value : null);
     if (results[1].status === "fulfilled") {
       setItems(results[1].value.items);
       setTotal(results[1].value.total);
     }
-    if (results.some((result) => result.status === "rejected")) {
+    setModelInfo(results[2].status === "fulfilled" ? results[2].value : null);
+    if (results[0].status === "rejected" || results[1].status === "rejected") {
       setError("Unable to reach the inspection API. Check that the backend is running; previously loaded records may be stale.");
     }
     setLoading(false);
@@ -92,7 +90,7 @@ export default function App() {
 
   if (selected) {
     return (
-      <Shell view="history" health={health} onView={(next) => { setSelected(null); setView(next); }}>
+      <Shell view="history" onView={(next) => { setSelected(null); setView(next); }}>
         <InspectionResult inspection={selected} onBack={() => setSelected(null)} />
       </Shell>
     );
@@ -103,16 +101,20 @@ export default function App() {
   const showsRecords = view === "dashboard" || view === "history" || view === "analytics";
 
   return (
-    <Shell view={view} health={health} onView={setView}>
+    <Shell view={view} onView={setView}>
       <div className="page-header">
         <div>
+          <div className="eyebrow">PCB INSPECTOR / WORKSPACE</div>
           <h1>{page.title}</h1>
           <p>{page.subtitle}</p>
         </div>
+        <div className="header-actions">
         <button className="secondary-button" onClick={() => void refresh()} disabled={loading}>
           <Icon name="refresh" />
           {loading ? "Refreshing…" : "Refresh"}
         </button>
+        {view !== "new" && <button className="primary-button" onClick={() => setView("new")}><Icon name="scan" />New inspection</button>}
+        </div>
       </div>
 
       {error && view !== "new" && <div className="error-banner" role="alert">{error}</div>}
@@ -130,15 +132,15 @@ export default function App() {
         {view === "dashboard" && (
           <>
             <div className="metrics-grid">
-              <MetricCard label="Total inspections" value={total} note="Stored inspection records" />
-              <MetricCard label="Pass rate" value={summary.passRate === null ? "—" : `${summary.passRate}%`} note={`Strict PASS across ${items.length} loaded records`} tone="green" />
-              <MetricCard label="Findings" value={summary.defects} note="Across loaded inspections" tone="orange" />
-              <MetricCard label="Critical" value={summary.severity.critical} note="Critical findings observed" tone="red" />
+              <MetricCard label="Boards inspected" value={total} note="All saved records" />
+              <MetricCard label="Pass rate" value={summary.passRate === null ? "—" : `${summary.passRate}%`} note={`Without warnings · ${items.length} loaded`} tone="green" />
+              <MetricCard label="Defects found" value={summary.defects} note="In loaded records" tone="orange" />
+              <MetricCard label="Critical findings" value={summary.severity.critical} note="In loaded records" tone="red" />
             </div>
 
             <section className="panel">
               <div className="panel-heading">
-                <h2>Latest inspections</h2>
+                <div><div className="eyebrow">INSPECTION LOG</div><h2>Latest inspections</h2></div>
                 <button className="text-button" onClick={() => setView("history")}>View all →</button>
               </div>
               {loading && !items.length ? (
@@ -150,22 +152,30 @@ export default function App() {
 
             <div className="system-grid">
               <section className="panel">
-                <div className="panel-heading"><h2>System status</h2></div>
-                <dl className="kv-list">
-                  <div><dt>API</dt><dd><StatusBadge value={health === null ? "offline" : health.status === "ok" ? "online" : "degraded"} /></dd></div>
-                  <div><dt>Database</dt><dd>{health?.database ?? "Unavailable"}</dd></div>
-                  <div><dt>Detection model</dt><dd>{health ? <StatusBadge value={health.model_status} /> : "Unknown"}</dd></div>
-                  <div><dt>Environment</dt><dd>{health?.environment ?? "—"}</dd></div>
-                </dl>
+                <div className="panel-heading">
+                  <h2>Findings by severity</h2>
+                  <span>{summary.defects} total</span>
+                </div>
+                {items.length ? (
+                  <BarList
+                    label={`Critical ${summary.severity.critical}, major ${summary.severity.major}, minor ${summary.severity.minor}`}
+                    rows={[
+                      ["Critical", summary.severity.critical, "red"],
+                      ["Major", summary.severity.major, "orange"],
+                      ["Minor", summary.severity.minor, "blue"],
+                    ] as const}
+                  />
+                ) : (
+                  <div className="loading-text">No inspections yet. Run one to see the breakdown.</div>
+                )}
               </section>
 
               <section className="panel action-panel">
-                <h2>Inspect a new PCB</h2>
-                <p>Upload a test board and an optional reference image to run the detection pipeline.</p>
-                <button className="primary-button" onClick={() => setView("new")}>
-                  <Icon name="scan" />
-                  Start inspection
-                </button>
+                <div className="eyebrow">AT THE BENCH</div>
+                <h2>Start with a clear board image.</h2>
+                <p>Keep the whole board in frame. Add a reference board if you need alignment and comparison.</p>
+                <div className="bench-note"><Icon name="scan" /><span>PNG, JPEG, BMP or TIFF<br /><span className="muted">Up to 20 MB per image</span></span></div>
+                <button className="text-button" onClick={() => setView("new")}>Choose board image <span aria-hidden="true">→</span></button>
               </section>
             </div>
           </>
@@ -191,37 +201,7 @@ export default function App() {
 
         {view === "analytics" && <AnalyticsPanel items={items} />}
 
-        {view === "model" && (
-          <section className="panel model-panel">
-            <div className="model-head">
-              <div className="model-icon"><Icon name="model" /></div>
-              <div>
-                <h2>{modelAvailable ? "Detection model loaded" : "No evaluated project model available"}</h2>
-                <span className="muted" style={{ fontSize: 13 }}>Ultralytics YOLO object detector</span>
-              </div>
-            </div>
-            <p>
-              {modelAvailable
-                ? "A weights file is configured on the server. Review its training run and held-out evaluation before interpreting results."
-                : "Train and evaluate the baseline, then place the weights at the configured model path to enable inspections."}
-            </p>
-
-            <div className="model-facts">
-              <div><span>Model status</span><strong>{health ? <StatusBadge value={health.model_status} /> : "Unknown"}</strong></div>
-              <div><span>API version</span><strong>{health?.version ?? "Unavailable"}</strong></div>
-              <div><span>Certification</span><strong>None · research only</strong></div>
-            </div>
-
-            <h2 style={{ fontSize: 15 }}>Declared output classes</h2>
-            <div className="class-list">
-              {MODEL_CLASSES.map((name) => <span className="class-chip" key={name}>{name}</span>)}
-            </div>
-
-            <div className="info-banner">
-              Accuracy metrics are shown only from a reproducible held-out evaluation run. None is bundled with the dashboard, so no placeholder numbers are displayed.
-            </div>
-          </section>
-        )}
+        {view === "model" && <ModelPanel info={modelInfo} apiVersion={health?.version} />}
       </div>
     </Shell>
   );

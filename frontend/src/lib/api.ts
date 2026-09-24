@@ -1,4 +1,4 @@
-import type { HealthResponse, Inspection, InspectionList } from "../types";
+import type { HealthResponse, Inspection, InspectionList, ModelInfo } from "../types";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
@@ -25,6 +25,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   health: () => request<HealthResponse>("/health"),
+  model: () => request<ModelInfo>("/api/model"),
   inspections: (limit = 50, offset = 0) =>
     request<InspectionList>(`/api/inspections?limit=${limit}&offset=${offset}`),
   inspection: (id: string) => request<Inspection>(`/api/inspections/${id}`),

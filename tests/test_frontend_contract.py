@@ -17,10 +17,12 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn('request<Inspection>("/api/inspect"', api)
 
     def test_no_placeholder_metrics(self):
-        app = (ROOT / "frontend/src/App.tsx").read_text()
-        self.assertIn("No evaluated project model available", app)
-        self.assertNotIn("98.6%", app)
-        self.assertNotIn("99.9%", app)
+        panel = (ROOT / "frontend/src/components/ModelPanel.tsx").read_text()
+        self.assertIn("No evaluated project model available", panel)
+        self.assertIn('request<ModelInfo>("/api/model")', (ROOT / "frontend/src/lib/api.ts").read_text())
+        for source in (panel, (ROOT / "frontend/src/App.tsx").read_text()):
+            self.assertNotIn("98.6%", source)
+            self.assertNotIn("99.9%", source)
 
     def test_responsive_and_accessibility_rules_exist(self):
         css = (ROOT / "frontend/src/styles.css").read_text()

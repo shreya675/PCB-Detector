@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from backend.app.api.router import router
 from backend.app.core.config import settings
@@ -25,3 +27,9 @@ app.add_middleware(
     allow_methods=["*"], allow_headers=["*"],
 )
 app.include_router(router)
+
+# Single-container deployments (e.g. Hugging Face Spaces) serve the built dashboard from the API.
+# API routes are registered first, so they take precedence over the static mount.
+_static = Path(settings.static_dir)
+if (_static / "index.html").is_file():
+    app.mount("/", StaticFiles(directory=str(_static), html=True), name="dashboard")
