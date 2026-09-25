@@ -37,6 +37,8 @@ COPY src ./src
 COPY migrations ./migrations
 COPY scripts/download_weights.py ./scripts/download_weights.py
 COPY models/model_card.json ./models/model_card.json
+# Bake the served weights into the image so cold starts never depend on an external download.
+COPY models/weights/yolo11m_official_v4.pt ./models/weights/yolo11m_official_v4.pt
 ARG INSTALL_ML=true
 RUN pip install --upgrade pip && pip install -e ".[postgres]" && \
     if [ "$INSTALL_ML" = "true" ]; then \

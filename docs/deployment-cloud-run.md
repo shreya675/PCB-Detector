@@ -21,7 +21,7 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregi
 ```bash
 gcloud run deploy pcb-aoi --source . --region us-central1 --allow-unauthenticated ^
   --memory 2Gi --cpu 2 --timeout 120 --max-instances 1 --cpu-boost ^
-  --set-env-vars MODEL_URL=https://huggingface.co/shreya246/pcb-aoi-yolo11m/resolve/main/yolo11m_official_v4.pt
+  --set-env-vars MODEL_URL=https://huggingface.co/shreya246/pcb-yolo11m/resolve/main/yolo11m_official_v4.pt
 ```
 
 (`^` continues a line in Windows cmd/PowerShell; use `\` on macOS/Linux.)

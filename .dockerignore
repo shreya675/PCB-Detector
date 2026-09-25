@@ -11,7 +11,8 @@ frontend/dist
 data/raw
 data/interim
 data/processed
-models/weights
+models/weights/*
+!models/weights/yolo11m_official_v4.pt
 runs
 reports/error-analysis*
 notebooks

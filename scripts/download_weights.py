@@ -10,6 +10,8 @@ import hashlib
 import json
 import os
 import sys
+import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -26,11 +28,21 @@ def main() -> int:
     destination.parent.mkdir(parents=True, exist_ok=True)
     partial = destination.with_suffix(".part")
     print(f"downloading {url} -> {destination}")
-    with urllib.request.urlopen(url, timeout=120) as response, partial.open("wb") as handle:
-        digest = hashlib.sha256()
-        while chunk := response.read(1024 * 1024):
-            handle.write(chunk)
-            digest.update(chunk)
+    digest = hashlib.sha256()
+    for attempt in range(1, 6):
+        try:
+            with urllib.request.urlopen(url, timeout=120) as response, partial.open("wb") as handle:
+                while chunk := response.read(1024 * 1024):
+                    handle.write(chunk)
+                    digest.update(chunk)
+            break
+        except urllib.error.HTTPError as exc:
+            if exc.code not in (429, 502, 503, 504) or attempt == 5:
+                raise
+            wait = 5 * attempt
+            print(f"attempt {attempt} got HTTP {exc.code}; retrying in {wait}s")
+            digest = hashlib.sha256()
+            time.sleep(wait)
     expected = _expected_sha256(Path(os.environ.get("MODEL_CARD_PATH", "models/model_card.json")))
     if expected and digest.hexdigest() != expected:
         partial.unlink(missing_ok=True)
