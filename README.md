@@ -1,13 +1,3 @@
----
-title: PCB AOI Inspector
-emoji: "🔍"
-colorFrom: blue
-colorTo: gray
-sdk: docker
-app_port: 8000
-pinned: false
----
-
 # PCB AOI — AI-Powered Optical Inspection
 
 A portfolio-level **academic/research prototype** for detecting visible PCB defects, comparing a test image with an optional reference board, assigning explainable severity, and publishing annotated results and PDF reports through a FastAPI API and React dashboard.
