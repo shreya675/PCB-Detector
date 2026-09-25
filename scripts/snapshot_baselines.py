@@ -10,7 +10,7 @@ import hashlib
 import json
 import re
 import shutil
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -88,7 +88,7 @@ def main() -> None:
                 dataset_records.append({"source": source.relative_to(root).as_posix(),
                                         "backup": destination.relative_to(root).as_posix(),
                                         "sha256": fingerprint})
-    manifest = {"created_at": datetime.now(timezone.utc).isoformat(),
+    manifest = {"created_at": datetime.now(UTC).isoformat(),
                 "scope": "Local artifact snapshot; no new training or evaluation performed.",
                 "limitations": ["Dataset metadata is copied; image files are not backed up.",
                                 "Checkpoint/report hash matches do not establish test independence.",
