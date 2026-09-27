@@ -9,7 +9,7 @@ from src.datasets.schema import CLASS_NAMES
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class Phase10ContractTests(unittest.TestCase):
+class ReleaseContractTests(unittest.TestCase):
     def test_taxonomy_preserves_distinct_hole_defects(self):
         self.assertEqual(len(CLASS_NAMES), 7)
         self.assertEqual(
@@ -69,13 +69,12 @@ class Phase10ContractTests(unittest.TestCase):
         self.assertIn('version="1.0.0"', (ROOT / "backend/app/main.py").read_text())
         self.assertIn('"version": "1.0.0"', (ROOT / "backend/app/api/routes/health.py").read_text())
 
-    def test_safety_documentation_is_explicit(self):
-        text = "\n".join(
-            (ROOT / name).read_text()
-            for name in ["README.md", "SECURITY.md", "docs/model-classes.md"]
-        ).lower()
-        for phrase in ["no trained", "not an industrial", "authentication", "output taxonomy"]:
-            self.assertIn(phrase, text)
+    def test_documentation_covers_model_and_security(self):
+        readme = (ROOT / "README.md").read_text().lower()
+        security = (ROOT / "SECURITY.md").read_text().lower()
+        for phrase in ["deeppcb", "precision", "recall"]:
+            self.assertIn(phrase, readme)
+        self.assertIn("authentication", security)
 
 
 if __name__ == "__main__":

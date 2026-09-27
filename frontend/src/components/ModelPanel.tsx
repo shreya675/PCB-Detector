@@ -47,8 +47,8 @@ export function ModelPanel({ info, apiVersion }: ModelPanelProps) {
           {card
             ? `Trained on ${card.dataset.name} (${card.dataset.split}; ${card.dataset.train} train / ${card.dataset.val} val / ${card.dataset.test} test images at ${card.dataset.image_size} px). All numbers below come from the held-out ${card.evaluation.split}.`
             : available
-              ? "A weights file is configured on the server, but no evaluation record matches it. Run the evaluation and update the model card before interpreting results."
-              : "Train and evaluate the baseline, then place the weights at the configured model path to enable inspections."}
+              ? "A weights file is loaded, but no evaluation record matches it yet."
+              : "No weights file found at the configured model path."}
         </p>
 
         <div className="model-facts">
@@ -58,7 +58,6 @@ export function ModelPanel({ info, apiVersion }: ModelPanelProps) {
           <div><span>Confidence threshold</span><strong>{info ? info.confidence_threshold : "—"}</strong></div>
           <div><span>Post-processing</span><strong>{info ? (info.postprocess.enabled ? `NMS ${info.postprocess.nms_iou} · box ×${info.postprocess.box_scale}` : "off") : "—"}</strong></div>
           <div><span>API version</span><strong>{apiVersion ?? "Unavailable"}</strong></div>
-          <div><span>Certification</span><strong>None · research only</strong></div>
         </div>
 
         {info?.evaluation_mismatch && (
@@ -139,7 +138,7 @@ export function ModelPanel({ info, apiVersion }: ModelPanelProps) {
         </div>
         {!card && (
           <div className="info-banner" style={{ marginTop: 14 }}>
-            Accuracy metrics are shown only from a reproducible held-out evaluation run that matches the loaded weights. No placeholder numbers are displayed.
+            Metrics appear here once an evaluation record matching the loaded weights is available.
           </div>
         )}
       </section>

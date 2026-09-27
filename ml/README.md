@@ -1,5 +1,5 @@
-# Machine learning workspace
+# ML configs
 
-Phase 2 will add dataset acquisition/conversion manifests. Phase 3 will add reproducible Ultralytics YOLO training, validation, and inference entry points. Model metrics must come from recorded runs and must never be fabricated.
-
-Phase 3 adds a configuration-driven Ultralytics baseline. See `docs/model-training.md`. No project weights or performance metrics are included until a real prepared dataset is trained and evaluated.
+Training and evaluation configurations for the Ultralytics YOLO detector live in `configs/`.
+See `docs/model-training.md` for the workflow and `models/model_card.json` for the results of the
+checkpoint served by the API.

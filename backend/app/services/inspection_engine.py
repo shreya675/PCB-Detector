@@ -125,8 +125,7 @@ class InspectionEngine:
         summary = {"defect_count": len(findings), "severity_counts": counts,
                    "reference_comparison": alignment_quality is not None,
                    "coordinate_frame": "reference" if alignment_quality else "test",
-                   "heuristic_count": sum(bool((item.metadata or {}).get("heuristic")) for item in findings),
-                   "prototype_notice": "Academic/research prototype; not industrially certified."}
+                   "heuristic_count": sum(bool((item.metadata or {}).get("heuristic")) for item in findings)}
         if alignment_quality and alignment_quality["overlap_ratio"] < 0.999:
             summary["coverage_warning"] = "Only the overlapping board area was compared; uncovered areas require review."
             if status == "PASS":

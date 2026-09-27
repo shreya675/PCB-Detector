@@ -1,4 +1,4 @@
-# Phase 4 — PCB preprocessing and registration
+# PCB preprocessing and registration
 
 ## Coordinate convention
 
@@ -21,7 +21,7 @@ The test PCB is transformed into the reference PCB coordinate system. `align_to_
 
 Registration returns a structured failure instead of silently producing a misleading comparison. Reasons include `insufficient_features`, `insufficient_matches`, `homography_estimation_failed`, `low_inlier_ratio`, `high_reprojection_error`, and `low_overlap`.
 
-Thresholds are configurable because board texture, image scale, optics, and capture geometry differ. Defaults are research starting points, not certified industrial tolerances.
+Thresholds are configurable because board texture, image scale, optics, and capture geometry differ. Defaults were tuned on DeepPCB images and should be revisited for other capture setups.
 
 ## CLI
 
@@ -40,4 +40,4 @@ Outputs include the aligned image, valid-overlap mask, grayscale difference, bin
 - Repetitive traces can create ambiguous ORB matches.
 - Large lighting changes may remain after CLAHE and appear as differences.
 - Difference regions are visual candidates, not classified defects.
-- Component-level matching remains Phase 5.
+- Component-level matching is described in component-comparison.md.

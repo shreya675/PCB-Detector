@@ -20,7 +20,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title=settings.app_name, version="1.0.0",
-    description="Academic/research PCB optical inspection prototype.", lifespan=lifespan,
+    description="Automated optical inspection of PCB images: defect detection, reference comparison and reporting.", lifespan=lifespan,
 )
 app.add_middleware(
     CORSMiddleware, allow_origins=settings.cors_origin_list, allow_credentials=True,

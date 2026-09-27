@@ -1,8 +1,6 @@
 # Contributing
 
-1. Create a focused branch.
-2. Keep raw datasets, licensed images, and weights out of Git.
-3. Add tests for behavior and failure cases.
-4. Never add metrics without the run configuration, dataset split, and raw evaluation artifact.
-5. Run `make verify`, `pytest`, and the frontend build before opening a pull request.
-6. Keep heuristic evidence distinct from learned model predictions.
+- Keep raw datasets, licensed images and model weights out of git.
+- Add tests for new behaviour and for failure cases.
+- Report metrics together with the config, dataset split and evaluation artifact they came from.
+- Run `make check` and `npm run build` in `frontend/` before opening a pull request.

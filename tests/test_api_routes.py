@@ -1,4 +1,4 @@
-"""Run with the Phase 7 API dependencies installed."""
+"""API route tests; skipped when FastAPI/SQLAlchemy are not installed."""
 import importlib.util
 import os
 import tempfile

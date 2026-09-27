@@ -3,7 +3,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_required_phase_one_paths_exist() -> None:
+def test_required_paths_exist() -> None:
     required = [
         "backend/app/main.py", "frontend/package.json", "ml/configs/deep_pcb.yaml",
         "src/cv", "src/inspection", "data/raw", "models/weights", "reports/generated",

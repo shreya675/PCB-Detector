@@ -1,4 +1,4 @@
-# Phase 8 — React engineering dashboard
+# React engineering dashboard
 
 ## Views
 

@@ -55,7 +55,7 @@ class PdfReportTests(unittest.TestCase):
                 self.assertIn("PASS WITH WARNING", text)
                 self.assertIn("Misaligned Component", text)
                 self.assertIn("Heuristic", text)
-                self.assertIn("not an industrial certification", text.lower())
+                self.assertIn("confirmed by an inspector", text.lower())
 
     def test_long_defect_log_paginates(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -65,7 +65,7 @@ class PdfReportTests(unittest.TestCase):
             output = generate_inspection_report(payload(annotated, defects), root / "long.pdf")
             with pymupdf.open(output) as document:
                 self.assertGreaterEqual(document.page_count, 2)
-                self.assertTrue(all("Academic/research prototype" in page.get_text() for page in document))
+                self.assertTrue(all("PCB AOI automated inspection report" in page.get_text() for page in document))
 
     def test_missing_image_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory, self.assertRaises(ReportGenerationError):

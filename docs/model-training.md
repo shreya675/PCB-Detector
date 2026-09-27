@@ -1,8 +1,8 @@
-# Phase 3 — YOLO baseline
+# YOLO baseline
 
 ## Scope
 
-This phase supplies reproducible baseline tooling, not pretrained project weights or claimed performance. Training requires a prepared dataset from Phase 2 and the optional ML dependencies.
+Configuration-driven training, validation and inference with Ultralytics YOLO. Training requires a prepared dataset (see datasets.md) and the `[ml]` dependencies. The checkpoint served by the API and its measured results are described in `models/model_card.json`.
 
 Ultralytics exposes Python `train`, `val`, and `predict` modes. The baseline fixes the seed, requests deterministic execution, saves plots/checkpoints, and stores only numeric metrics returned by the library.
 
@@ -26,7 +26,6 @@ Training produces a `run_metadata.json` beside the run and appends a JSON line t
 ## Metric policy
 
 - No values are created when Ultralytics returns no metrics.
-- No sample or placeholder values appear in the model registry.
 - Do not compare runs unless they use the same split, class order, image size, and evaluation settings.
 - Preserve raw Ultralytics run artifacts for auditability.
 

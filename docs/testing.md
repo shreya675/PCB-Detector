@@ -1,29 +1,15 @@
-# Testing and validation
-
-## Commands
+# Testing
 
 ```bash
-make test              # full Pytest suite after installing dependencies
-make test-phase2       # dataset pipeline
-make test-phase3       # YOLO wrappers
-make test-phase4       # preprocessing and registration
-make test-phase5       # component comparison
-make test-phase6       # trace evidence
-make test-phase7       # backend; API cases require FastAPI and SQLAlchemy
-make test-phase8       # dashboard/API contract
-make test-phase9       # PDF reports
-make test-phase10      # deployment and taxonomy contracts
-make verify            # dependency-aware aggregate verifier
+make check        # ruff + compile check + full pytest suite
+pytest -q         # tests only
+cd frontend && npm run typecheck && npm run build
+docker compose config --quiet
 ```
 
-`make verify` runs structure, compilation, lint, and the full Pytest suite once.
-It saves observed results to `reports/validation-summary.json` and JUnit XML under
-`reports/generated`. Install `.[dev]` first. Skips and failures remain separate;
-phase-specific legacy runners do not replace the full regression suite.
+API tests skip automatically when FastAPI/SQLAlchemy are not installed; PDF tests need `pymupdf`
+(in the `[dev]` extras). The same checks run in GitHub Actions on every push (`.github/workflows/ci.yml`).
 
-Frontend verification: `cd frontend && npm ci && npm run build`.
-Container configuration: `docker compose config --quiet`; runtime validation
-requires a running Docker engine. See `docs/workspace-audit.md` for this audit's
-actual results and limits.
-
-Synthetic images validate geometry and failure handling; they do not establish real-world model performance. Accuracy must come from held-out dataset evaluation using the Phase 3 workflow.
+Unit tests use synthetic images to exercise geometry and failure handling. Model accuracy is measured
+separately on the held-out DeepPCB test split with `python -m src.ml.cli evaluate` and
+`scripts/analyze_errors.py`; the results are recorded in `models/model_card.json`.

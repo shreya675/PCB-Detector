@@ -14,7 +14,7 @@ The output taxonomy keeps missing holes and pin holes separate:
 | 5 | `missing_hole` | Missing hole |
 | 6 | `pin_hole` | Pin hole (DeepPCB) |
 
-No trained project weights are bundled. The repository therefore is not operationally predicting any class until a real model is trained or supplied. This taxonomy defines the output head and label order, not achieved capability.
+The served checkpoint (`yolo11m_official_v4.pt`) is trained on DeepPCB, which has no `missing_hole` examples, so that class is declared but never predicted. Per-class results are in `models/model_card.json`.
 
 ## Rule-based reference evidence
 
@@ -29,4 +29,4 @@ Reference analysis can additionally emit six evidence types:
 
 These are not YOLO classes and do not increase the model class count. Their confidence is null and displayed as **Heuristic**. Polarity error, tombstoning, cold solder, and confirmed solder bridge are not supported model predictions in this version.
 
-Checkpoint class names are validated and resolved from checkpoint metadata, including reordered classes. Generic COCO labels are rejected. A declared category without training examples is not a demonstrated capability.
+Checkpoint class names are validated and resolved from checkpoint metadata, including reordered classes. Generic COCO checkpoints are rejected.

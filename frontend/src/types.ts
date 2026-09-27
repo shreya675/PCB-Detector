@@ -7,7 +7,6 @@ export interface HealthResponse {
   version: string;
   database: string;
   model_status: "available" | "missing";
-  prototype: boolean;
 }
 
 export interface Defect {

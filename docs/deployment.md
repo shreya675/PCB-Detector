@@ -24,11 +24,15 @@ OpenAPI: `http://localhost:8000/docs`
 
 The API image uses a non-root user, runs migrations before startup, exposes a health check, and stores reports in a named volume. Model weights are mounted read-only. Nginx serves the SPA and proxies API requests.
 
-## Production gaps
+## Cloud
 
-Before production use, add authentication and authorization, TLS, a secrets manager, object storage, upload malware scanning, rate limits, background inference workers, observability, backups, signed reports, retention controls, model approval gates, and validated camera/calibration procedures.
+The hosted demo runs on Google Cloud Run from the same Dockerfile; see deployment-cloud-run.md.
+
+## Hardening
+
+For multi-user or production use, add authentication, TLS, object storage for images and reports, rate limiting and background inference workers.
 
 The API Docker image installs the optional ML stack by default. For API-only
 development, `docker build --build-arg INSTALL_ML=false -t pcb-aoi-api .` omits it;
-that image cannot run YOLO. Trained weights still must be supplied separately.
+that image cannot run YOLO. Weights are copied into the image when present in `models/weights/`.
 The Vite development server proxies `/api` and `/health` to port 8000.

@@ -1,12 +1,12 @@
-# Phase 6 — Advanced trace-analysis candidates
+# Advanced trace-analysis candidates
 
 ## Scope and claims
 
-This phase adds deterministic visual evidence for possible trace discontinuities, copper bridges, and spurious copper. Outputs deliberately use the suffix `_candidate`: they are not electrical continuity measurements, solder-joint classifications, calibrated probabilities, or industrial pass/fail decisions.
+This module produces deterministic visual evidence for possible trace discontinuities, copper bridges, and spurious copper. Outputs deliberately use the suffix `_candidate`: they are not electrical continuity measurements, solder-joint classifications, calibrated probabilities, or industrial pass/fail decisions.
 
 ## Pipeline
 
-1. Require successful Phase 4 registration.
+1. Require successful image registration (see image-registration.md).
 2. Segment copper-like pixels independently in the reference and aligned test image.
 3. Restrict all operations to the valid registration overlap.
 4. Apply a configurable spatial tolerance to suppress one- or two-pixel alignment noise.
@@ -56,4 +56,4 @@ Inspect masks before interpreting candidates. Copper brightness, solder mask col
 - Shadows, glare, contamination, print, and registration residuals can cause false candidates.
 - Hidden-layer, via-barrel, underside, and subsurface faults are not observable from one surface image.
 - Cold solder, tombstoning, and polarity errors require suitable labeled data and/or dedicated geometry rules.
-- Final severity and PASS/WARNING/FAIL policy are implemented in the backend phase using configurable rules.
+- Final severity and PASS/WARNING/FAIL decisions are made by the backend's configurable severity policy.

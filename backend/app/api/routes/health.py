@@ -24,5 +24,4 @@ def health() -> dict:
         "version": "1.0.0",
         "database": database,
         "model_status": "available" if Path(settings.model_path).is_file() else "missing",
-        "prototype": True,
     }

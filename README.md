@@ -1,158 +1,121 @@
-# PCB AOI — AI-Powered Optical Inspection
+# PCB AOI — automated optical inspection for printed circuit boards
 
-A portfolio-level **academic/research prototype** for detecting visible PCB defects, comparing a test image with an optional reference board, assigning explainable severity, and publishing annotated results and PDF reports through a FastAPI API and React dashboard.
+Detects copper-pattern defects on PCB images with a YOLO11 detector, optionally compares the board
+against a defect-free reference, assigns a severity to each finding and produces an annotated image,
+a PDF report and a dashboard history.
 
-> **Safety notice:** This is not an industrially certified inspection system, electrical continuity test, or substitute for qualified human inspection. Trained weights are distributed separately; measured performance is recorded in `models/model_card.json`.
+**Live demo:** https://pcb-aoi-723755393271.us-central1.run.app (first load takes ~30 s while the
+container starts; sample images are in `data/processed/deeppcb-official/images/test` after dataset
+preparation, or any DeepPCB image works).
 
-## Pipeline
+## Results
+
+Model: YOLO11m trained on the [DeepPCB](https://github.com/tangsanli5201/DeepPCB) benchmark using the
+official trainval/test lists (900 train / 100 val / 500 test images, 1024 px). All numbers are on the
+500 held-out test images.
+
+| Setting | Precision | Recall |
+|---|---|---|
+| Model only (conf 0.25, IoU 0.33) | 93.2% | 94.3% |
+| Model + post-processing (as deployed) | **95.8%** | **94.0%** |
+| Defect-level (any class) | 96.3% | 94.5% |
+| Ultralytics val (conf 0.001): mAP@0.5 / mAP@0.5:0.95 | 97.8% / 74.1% | — |
+
+Post-processing is class-agnostic NMS (IoU 0.2) plus a 1.15× box expansion; it removes 40% of false
+positives (214 → 129) at almost no cost in recall. Per-class numbers, training recipe and known
+limitations are in [`models/model_card.json`](models/model_card.json) and on the dashboard's
+Model performance page. The error analysis behind these numbers is produced by
+`scripts/analyze_errors.py`.
+
+## How it works
 
 ```text
 PCB image
-  → validation and CLAHE preprocessing
-  → optional ORB/RANSAC registration
-  → YOLO defect detection
-  → component/reference comparison
-  → trace-candidate evidence
-  → rule-based severity
+  → validation, CLAHE preprocessing
+  → optional ORB + RANSAC registration against a reference image
+  → YOLO11 defect detection + post-processing
+  → reference comparison: component placement and trace-difference candidates
+  → rule-based severity (critical / major / minor)
   → PASS / PASS WITH WARNING / FAIL
-  → annotated image + PDF report + dashboard history
+  → annotated image, PDF report, inspection history
 ```
 
-## Model output classes
+Defect classes: `open_circuit`, `short_circuit`, `spur`, `spurious_copper`, `mouse_bite`, `pin_hole`
+(and `missing_hole`, declared for HRIPCB data but absent from DeepPCB). Reference comparison adds
+heuristic evidence types (`missing_component`, `bridge_candidate`, …) that are shown with no
+confidence score. See [docs/model-classes.md](docs/model-classes.md).
 
-The output taxonomy preserves the requested categories plus DeepPCB pin holes:
+## Stack
 
-1. `open_circuit`
-2. `short_circuit`
-3. `spur`
-4. `spurious_copper`
-5. `mouse_bite`
-6. `missing_hole`
-7. `pin_hole` (DeepPCB-specific; distinct from a missing drilled hole)
-
-Trained weights are not committed (see `models/weights/`); the API expects `models/weights/yolo11m_official_v4.pt` (YOLO11m, DeepPCB official split). Its held-out results are recorded in `models/model_card.json` and shown on the dashboard's Model performance page: precision 95.8% / recall 94.0% at conf 0.25, IoU 0.33 with post-processing (500 test images). Reference comparison can produce six additional heuristic evidence types; these are not model classes or probabilities. See [docs/model-classes.md](docs/model-classes.md).
-
-## Features
-
-- Deterministic DeepPCB/HRIPCB preparation and grouped splits
-- Reproducible Ultralytics training, validation, inference, and model registry
-- OpenCV preprocessing, registration quality gates, and visual differencing
-- Component matching and trace-candidate analysis
-- Configurable severity policy and auditable decisions
-- FastAPI endpoints with SQLite/PostgreSQL persistence
-- Responsive React/Vite engineering dashboard
-- A4 PDF reports with provenance and prototype disclaimers
-- Alembic schema migration, hardened containers, and CI workflows
+FastAPI + SQLAlchemy (SQLite or PostgreSQL) backend, React/Vite/TypeScript dashboard, Ultralytics
+YOLO11, OpenCV, ReportLab for PDFs, Docker, GitHub Actions CI, Google Cloud Run.
 
 ## API
 
 | Method | Endpoint | Purpose |
 |---|---|---|
 | GET | `/health` | Database and model readiness |
-| POST | `/api/inspect` | Inspect test image with optional reference |
+| GET | `/api/model` | Loaded checkpoint, thresholds and evaluation record |
+| POST | `/api/inspect` | Inspect a test image with an optional reference image |
 | GET | `/api/inspections` | Paginated history |
 | GET | `/api/inspections/{id}` | Inspection details |
-| GET | `/api/inspections/{id}/image/{kind}` | Test/reference/annotated image |
-| GET | `/api/inspections/{id}/report` | Generate or download PDF |
+| GET | `/api/inspections/{id}/image/{kind}` | Test / reference / annotated image |
+| GET | `/api/inspections/{id}/report` | PDF report |
 
-## Local setup
+## Run locally
 
-Requirements: Python 3.11+ and Node 22+.
+Requirements: Python 3.11+, Node 22+.
 
 ```bash
+python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
+pip install -e ".[dev,ml]"
 cp .env.example .env
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -e ".[dev]"
 alembic upgrade head
-cd frontend && npm install && cd ..
+uvicorn backend.app.main:app --reload                 # API on :8000
+
+cd frontend && npm install && npm run dev             # dashboard on :5173
 ```
 
-Install the ML stack only for training/inference:
+Place the weights at `models/weights/yolo11m_official_v4.pt` (download from
+[Hugging Face](https://huggingface.co/shreya246/pcb-yolo11m)). Without weights the API returns 503
+for inspections.
+
+With Docker: `docker compose up --build` starts PostgreSQL, the API and an nginx-served dashboard on
+`http://localhost:8080`.
+
+## Train and evaluate
 
 ```bash
-pip install -e ".[ml]"
+python scripts/download_deeppcb.py --accept-research-only            # fetch the dataset
+python -m src.datasets.cli deeppcb --source data/raw/DeepPCB/PCBData --output data/processed/deeppcb-official --official-split data/raw/DeepPCB/PCBData
+python -m src.ml.cli train    --config ml/configs/yolo_baseline.yaml
+python -m src.ml.cli evaluate --config ml/configs/yolo_eval_official.yaml --weights models/weights/yolo11m_official_v4.pt
+python scripts/analyze_errors.py --predictions <run>/predictions.json --dataset data/processed/deeppcb-official --split test --postprocess --iou 0.33
 ```
 
-Run locally:
+Details: [docs/datasets.md](docs/datasets.md), [docs/model-training.md](docs/model-training.md).
+
+## Tests
 
 ```bash
-make api       # API: http://localhost:8000
-make frontend  # Dashboard: http://localhost:5173
-```
-
-Or use PostgreSQL and containers:
-
-```bash
-docker compose up --build
-# Dashboard: http://localhost:8080
-```
-
-## Validation
-
-```bash
-make verify
-pytest
+make check                                    # ruff, compile check, pytest
 cd frontend && npm run typecheck && npm run build
 ```
 
-In limited environments, dependency-backed API tests, Docker builds, or frontend builds may be unavailable. Skips are reported separately and are never counted as passes. Synthetic CV fixtures validate logic, not real-world accuracy.
+## Deploy
 
-## Project status
-
-All ten phases have implementation code. Dataset acquisition, real model training, held-out evaluation, and deployment validation remain pending:
-
-- Project scaffold and architecture
-- Dataset preparation
-- YOLO baseline
-- Registration and preprocessing
-- Component comparison
-- Trace candidate analysis
-- API and persistence
-- Dashboard
-- PDF reports
-- Testing, migrations, containers, CI, security, and documentation
+The root `Dockerfile` builds the dashboard and API into one image. See
+[docs/deployment-cloud-run.md](docs/deployment-cloud-run.md) for the Cloud Run setup and
+[docs/deployment.md](docs/deployment.md) for Docker Compose.
 
 ## Documentation
 
-- [Architecture](docs/architecture.md)
-- [Datasets](docs/datasets.md)
-- [Model training](docs/model-training.md)
-- [Model classes](docs/model-classes.md)
-- [Image registration](docs/image-registration.md)
-- [Component comparison](docs/component-comparison.md)
-- [Trace analysis](docs/advanced-trace-analysis.md)
-- [Backend API](docs/backend-api.md)
-- [Dashboard](docs/frontend-dashboard.md)
-- [PDF reports](docs/pdf-reports.md)
-- [Testing](docs/testing.md)
-- [Deployment](docs/deployment.md)
-- [Security](SECURITY.md)
+[Architecture](docs/architecture.md) · [Datasets](docs/datasets.md) · [Model training](docs/model-training.md) ·
+[Model classes](docs/model-classes.md) · [Image registration](docs/image-registration.md) ·
+[Component comparison](docs/component-comparison.md) · [Trace analysis](docs/advanced-trace-analysis.md) ·
+[Backend API](docs/backend-api.md) · [Dashboard](docs/frontend-dashboard.md) · [PDF reports](docs/pdf-reports.md) ·
+[Testing](docs/testing.md) · [Security](SECURITY.md)
 
-Project code is MIT licensed. Dataset and model artifacts remain subject to their original terms.
+## License
 
-## Windows (PowerShell)
-
-Run commands from `pcb-aoi-final/pcb-aoi`, the active project in this workspace.
-Redundant historical phase snapshots were removed during GitHub preparation.
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-Copy-Item .env.example .env  # only when .env does not already exist
-.\.venv\Scripts\python.exe -m alembic upgrade head
-.\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload
-# In another terminal:
-cd frontend
-npm ci
-npm run dev
-```
-
-Install `.[ml]` into the same environment before using real checkpoint weights.
-Missing weights return HTTP 503; the application never substitutes fake detections.
-DeepPCB does not provide missing-hole examples: prepare suitable HRIPCB data for
-that category. Previously prepared data must be regenerated after the taxonomy fix.
-Only categories represented in the training data can be evaluated meaningfully.
-
-See [workspace audit](docs/workspace-audit.md) for corrections and validation results.
+MIT for the code in this repository. DeepPCB and other datasets remain under their own terms.

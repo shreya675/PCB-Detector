@@ -33,4 +33,4 @@ The browser derives every KPI and magnitude bar from API records. It accesses in
 
 ## Report contract
 
-PDF reports are generated from persisted inspection records and stored beside inspection artifacts. Null confidence is rendered as Heuristic, table headers repeat across pages, and every page carries the research-prototype disclaimer.
+PDF reports are generated from persisted inspection records and stored beside inspection artifacts. Null confidence is rendered as Heuristic, table headers repeat across pages, and every page carries a footer with the page number.

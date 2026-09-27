@@ -1,4 +1,4 @@
-# Phase 9 — PDF inspection reports
+# PDF inspection reports
 
 Every successful persisted inspection generates a paginated PDF beside its image artifacts. Existing records without a report are generated lazily when the report endpoint is requested.
 
@@ -11,7 +11,7 @@ Every successful persisted inspection generates a paginated PDF beside its image
 - Defect type, severity, confidence/heuristic label, bounding box, and source
 - Reference registration quality when available
 - Model version and interpretation policy
-- Page numbers and prototype disclaimer on every page
+- Page numbers and footer on every page
 
 ## Integrity policy
 
@@ -23,4 +23,4 @@ The report reads stored inspection data; it does not recompute or invent metrics
 
 ## Limitations
 
-The PDF is an academic/research record, not an industrial certificate, electrical test, or replacement for qualified review. Production deployments should add signing, immutable object storage, access controls, retention, audit trails, and validated report templates.
+Reference-comparison and trace findings are heuristic candidates; the report flags them as such so an inspector can confirm them. For regulated use, add report signing, immutable storage and audit trails.

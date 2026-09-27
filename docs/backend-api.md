@@ -1,4 +1,4 @@
-# Phase 7 — FastAPI backend and persistence
+# FastAPI backend and persistence
 
 ## Endpoints
 
@@ -9,7 +9,7 @@
 | GET | `/api/inspections` | Paginated inspection history |
 | GET | `/api/inspections/{id}` | Inspection details and defects |
 | GET | `/api/inspections/{id}/image/{kind}` | Serve test, reference, or annotated image |
-| GET | `/api/inspections/{id}/report` | Download a Phase 9 PDF when available |
+| GET | `/api/inspections/{id}/report` | Download the PDF report (generated on demand) |
 
 ## Inspection behavior
 
@@ -45,6 +45,6 @@ SQLite is the local default. For PostgreSQL, set `DATABASE_URL=postgresql+psycop
 
 Inspection images are written under `reports/inspections/<inspection-id>/`. The database stores paths and structured results. Production deployments should replace local storage with durable object storage and add authentication, authorization, malware scanning, retention policy, migrations, and queue-based inference.
 
-## Prototype notice
+## Severity policy
 
-This backend is an academic/research prototype. Severity rules are configurable engineering policy examples, not certified acceptance criteria.
+Severity rules live in `backend/app/core/severity.yaml` and can be adjusted per deployment.

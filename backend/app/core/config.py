@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "PCB AOI Research Prototype"
+    app_name: str = "PCB AOI"
     app_env: str = "development"
     database_url: str = "sqlite:///./pcb_aoi.db"
     cors_origins: str = "http://localhost:5173"

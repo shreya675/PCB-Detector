@@ -46,10 +46,6 @@ export function Shell({ view, onView, children }: ShellProps) {
           ))}
         </nav>
 
-        <div className="prototype-note">
-          <strong>Research prototype</strong>
-          Not certified for industrial acceptance decisions.
-        </div>
       </aside>
 
       <div className="workspace">

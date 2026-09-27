@@ -16,7 +16,7 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn('body.append("reference_image", reference)', api)
         self.assertIn('request<Inspection>("/api/inspect"', api)
 
-    def test_no_placeholder_metrics(self):
+    def test_model_page_reads_metrics_from_api(self):
         panel = (ROOT / "frontend/src/components/ModelPanel.tsx").read_text()
         self.assertIn("No evaluated project model available", panel)
         self.assertIn('request<ModelInfo>("/api/model")', (ROOT / "frontend/src/lib/api.ts").read_text())

@@ -1,4 +1,4 @@
-# Phase 5 — Component detection and reference comparison
+# Component detection and reference comparison
 
 ## Design
 
@@ -9,7 +9,7 @@ The component layer accepts any detector implementing `detect(image) -> tuple[Co
 
 ## Comparison
 
-The test board is first aligned into reference coordinates using Phase 4. Comparison is skipped if registration quality fails. One-to-one matching then combines:
+The test board is first aligned into reference coordinates (see image-registration.md). Comparison is skipped if registration quality fails. One-to-one matching then combines:
 
 - center displacement,
 - logarithmic area ratio,
@@ -54,5 +54,5 @@ The command writes `component_comparison.json`, `reference_components.png`, and 
 - A contour proposal is not semantic component recognition.
 - Silkscreen, vias, traces, shadows, and dark substrate regions may become false candidates.
 - Reliable missing-component results require repeatable imaging and a detector trained for the relevant component families.
-- Polarity, tombstoning, solder quality, and electrical continuity are not inferred in this phase.
+- Polarity, tombstoning, solder quality, and electrical continuity are not inferred.
 - Comparison is suppressed when registration fails, preventing alignment errors from being presented as component defects.
