@@ -28,9 +28,26 @@ gcloud run deploy pcb-aoi --source . --region us-central1 --allow-unauthenticate
 The first build takes ~10 minutes. The command prints the service URL; `/api/model` and
 `/health` are available on it.
 
+## Persistent history
+
+Cloud Run's disk is temporary, so the database and inspection images are kept outside the container:
+
+- Database: a free [Neon](https://neon.tech) PostgreSQL project. Store its connection string (with the
+  `postgresql+psycopg://` prefix) in Secret Manager as `pcb-aoi-database-url` and grant the Cloud Run
+  service account `roles/secretmanager.secretAccessor`.
+- Images and PDFs: a Cloud Storage bucket mounted at `/app/data` (the app's `STORAGE_ROOT` parent).
+
+```bash
+gcloud secrets create pcb-aoi-database-url --data-file=db.txt
+gcloud storage buckets create gs://<bucket> --location=us-central1
+gcloud run deploy pcb-aoi --source . --region us-central1 --allow-unauthenticated ^
+  --memory 2Gi --cpu 2 --timeout 120 --max-instances 1 --cpu-boost ^
+  --set-secrets DATABASE_URL=pcb-aoi-database-url:latest ^
+  --add-volume name=data,type=cloud-storage,bucket=<bucket> --add-volume-mount volume=data,mount-path=/app/data
+```
+
 ## Notes
 
-- Ephemeral disk: inspection history resets on each new instance.
-- Cold start ~30 s (image + 40 MB weights download); warm requests take 2-5 s on CPU.
+- Cold start ~30 s; warm requests take 2-5 s on CPU. Weights are baked into the image.
 - `--max-instances 1` caps cost; `.gcloudignore` keeps datasets, runs and weights out of the upload.
 - `docker-compose.yml` is unchanged for local multi-service runs.
